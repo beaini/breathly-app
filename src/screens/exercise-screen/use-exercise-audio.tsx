@@ -14,7 +14,7 @@ export const useExerciseAudio = (guidedBreathingVoice: GuidedBreathingMode) => {
     return () => {
       if (guidedBreathingVoice !== "disabled") releaseGuidedBreathingAudio();
     };
-  }, []);
+  }, [guidedBreathingVoice]);
 
   return {
     playExerciseStepAudio(stepMetadata: StepMetadata) {

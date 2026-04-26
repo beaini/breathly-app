@@ -1,6 +1,5 @@
 import {
   createAudioPlayer,
-  preload,
   setAudioModeAsync,
   type AudioPlayer,
   type AudioSource,
@@ -8,9 +7,7 @@ import {
 import { sounds } from "@breathly/assets/sounds";
 import { GuidedBreathingMode } from "@breathly/types/guided-breathing-mode";
 
-(async function () {
-  setAudioModeAsync({ playsInSilentMode: true });
-})();
+const audioModePromise = setAudioModeAsync({ playsInSilentMode: true });
 
 export type GuidedBreathingStep = "breatheIn" | "breatheOut" | "hold";
 
@@ -49,46 +46,56 @@ type CurrentGuidedBreathingSounds = {
 
 let currentGuidedBreathingSounds: CurrentGuidedBreathingSounds | undefined;
 let endingBellSound: AudioPlayer | undefined;
+let audioSetupPromise: Promise<void> | undefined;
 
-async function createPreloadedPlayer(source: AudioSource | null) {
+function createPlayer(source: AudioSource | null) {
   if (source == null) return undefined;
-  await preload(source);
   return createAudioPlayer(source, { keepAudioSessionActive: true });
 }
 
+async function playFromStart(sound: AudioPlayer) {
+  try {
+    await sound.seekTo(0);
+  } catch {
+    // Playback can still start if the player is not ready to seek yet.
+  }
+  sound.play();
+}
+
 export async function setupGuidedBreathingAudio(guidedBreathingMode: GuidedBreathingMode) {
-  const [endingBell, breatheIn, breatheOut, hold] = await Promise.all([
-    createPreloadedPlayer(sounds.endingBell),
-    createPreloadedPlayer(guidedBreathingAudioAssets[guidedBreathingMode].breatheIn),
-    createPreloadedPlayer(guidedBreathingAudioAssets[guidedBreathingMode].breatheOut),
-    createPreloadedPlayer(guidedBreathingAudioAssets[guidedBreathingMode].hold),
-  ]);
-  endingBellSound = endingBell;
-  currentGuidedBreathingSounds = {
-    breatheIn,
-    breatheOut,
-    hold,
-  };
+  audioSetupPromise = (async () => {
+    await audioModePromise;
+    endingBellSound = createPlayer(sounds.endingBell);
+    currentGuidedBreathingSounds = {
+      breatheIn: createPlayer(guidedBreathingAudioAssets[guidedBreathingMode].breatheIn),
+      breatheOut: createPlayer(guidedBreathingAudioAssets[guidedBreathingMode].breatheOut),
+      hold: createPlayer(guidedBreathingAudioAssets[guidedBreathingMode].hold),
+    };
+  })();
+
+  return audioSetupPromise;
 }
 
 export const releaseGuidedBreathingAudio = async () => {
+  await audioSetupPromise;
   endingBellSound?.remove();
   currentGuidedBreathingSounds?.breatheIn?.remove();
   currentGuidedBreathingSounds?.breatheOut?.remove();
   currentGuidedBreathingSounds?.hold?.remove();
   endingBellSound = undefined;
   currentGuidedBreathingSounds = undefined;
+  audioSetupPromise = undefined;
 };
 
 export const playGuidedBreathingSound = async (guidedBreathingStep: GuidedBreathingStep) => {
+  await audioSetupPromise;
   const sound = currentGuidedBreathingSounds?.[guidedBreathingStep];
   if (!sound) return;
-  await sound.seekTo(0);
-  sound.play();
+  await playFromStart(sound);
 };
 
 export const playEndingBellSound = async () => {
+  await audioSetupPromise;
   if (!endingBellSound) return;
-  await endingBellSound.seekTo(0);
-  endingBellSound.play();
+  await playFromStart(endingBellSound);
 };
