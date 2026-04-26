@@ -17,14 +17,14 @@ export type RootStackParamList = {
   Exercise: undefined;
   Settings: undefined;
 };
-const RootStack = createNativeStackNavigator<RootStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList, undefined>();
 
 export type SettingsStackParamList = {
   SettingsRoot: undefined;
   SettingsPatternPicker: undefined;
 };
 
-const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList, undefined>();
 
 export const Navigator: FC = () => {
   const { colorScheme } = useNativeWindColorScheme();
@@ -42,6 +42,7 @@ export const Navigator: FC = () => {
     <SafeAreaProvider style={{ backgroundColor }}>
       <NavigationContainer theme={theme}>
         <RootStack.Navigator
+          id={undefined}
           initialRouteName="Home"
           screenOptions={{
             headerShown: false,
@@ -79,7 +80,7 @@ export const Navigator: FC = () => {
                 headerTintColor: Platform.OS === "ios" ? undefined : colors["blue-400"],
               };
               return (
-                <SettingsStack.Navigator initialRouteName="SettingsRoot">
+                <SettingsStack.Navigator id={undefined} initialRouteName="SettingsRoot">
                   <SettingsStack.Screen
                     name="SettingsRoot"
                     component={SettingsRootScreen}

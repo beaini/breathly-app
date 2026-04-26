@@ -60,7 +60,7 @@ export const StarsBackground: FC<Props> = ({
         extrapolate: "clamp",
       }),
     },
-  ];
+  ] as const;
 
   const handleLoad = () => {
     onImageLoaded?.();

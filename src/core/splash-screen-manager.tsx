@@ -1,5 +1,4 @@
 import { Asset } from "expo-asset";
-import Constants from "expo-constants";
 import * as SplashScreen from "expo-splash-screen";
 import ms from "ms";
 import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,6 +16,10 @@ const splashImageAsset = require("../../assets/splash.png");
 
 // Force the splash-screen to stay visible for a bit to avoid jarring visuals
 const waitBeforeHide = ms("1.5 sec");
+const splashConfig = {
+  backgroundColor: "#F2F2F1",
+  resizeMode: "cover" as const,
+};
 
 export const SplashScreenManager: React.FC<PropsWithChildren> = ({ children }) => {
   const [isSplashReady, setSplashReady] = useState(false);
@@ -86,7 +89,7 @@ const AnimatedSplashScreen: React.FC<PropsWithChildren> = ({ children }) => {
           style={[
             StyleSheet.absoluteFill,
             {
-              backgroundColor: Constants.manifest.splash.backgroundColor,
+              backgroundColor: splashConfig.backgroundColor,
               opacity: animation,
             },
           ]}
@@ -95,7 +98,7 @@ const AnimatedSplashScreen: React.FC<PropsWithChildren> = ({ children }) => {
             style={{
               width: "100%",
               height: "100%",
-              resizeMode: Constants.manifest.splash.resizeMode || "contain",
+              resizeMode: splashConfig.resizeMode,
             }}
             source={splashImageAsset}
             onLoadEnd={onImageLoaded}

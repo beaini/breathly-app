@@ -14,7 +14,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/ios-icon.png",
@@ -24,7 +26,6 @@
     "android": {
       "blockedPermissions": [
         "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.INTERNET",
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.RECORD_AUDIO",
         "android.permission.SYSTEM_ALERT_WINDOW",
@@ -51,9 +52,20 @@
     },
     "plugins": [
       [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#F2F2F1"
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.1.0",
             "enableProguardInReleaseBuilds": true
           }
         }
@@ -61,12 +73,10 @@
       [
         "expo-navigation-bar",
         {
-          "position": "absolute",
-          "visibility": "hidden",
-          "behavior": "overlay-swipe",
-          "backgroundColor": "#00000080"
+          "visibility": "hidden"
         }
-      ]
+      ],
+      "expo-audio"
     ]
   }
 }
